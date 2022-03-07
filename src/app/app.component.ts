@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Tile } from './component/model';
+import { Tile } from './model';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +8,10 @@ import { Tile } from './component/model';
 })
 export class AppComponent implements OnInit {
   tiles: Array<Tile>;
-  sequence: Array<number> = [0, 2, 4];
+  sequence: Array<number> = [];
   userSequence: Array<number> = [];
   interval: any;
-  level: number = 3;
+  level: number = 1;
   score: number = 0;
   highScore: number = 0;
 
@@ -20,11 +20,14 @@ export class AppComponent implements OnInit {
   }
 
   start() {
-    // this.resetTiles();
-    // this.resetSequence();
-    // while (!this.sequence.length) {
-    //   this.sequence = this.generateSequence();
-    // }
+    this.resetTiles();
+    this.resetSequence();
+    this.setAvailable(true);
+
+    while (!this.sequence.length) {
+      this.sequence = this.generateSequence();
+    }
+    console.log(this.sequence);
     if (this.sequence.length) {
       this.highlightPattern(this.sequence);
     }
@@ -35,7 +38,8 @@ export class AppComponent implements OnInit {
       return <Tile>{
         index: i,
         active: false,
-        error: false
+        error: false,
+        available: true
       }
     });
   }
@@ -54,6 +58,7 @@ export class AppComponent implements OnInit {
         index++;
 
         if (index === pattern.length) {
+          pattern.pop();
           clearInterval(this.interval);
           this.interval = null;
         }
@@ -75,7 +80,7 @@ export class AppComponent implements OnInit {
     return seq;
   }
 
-  getRandom(max = 5, min = 0): number {
+  getRandom(max = 4, min = 0): number {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -108,7 +113,12 @@ export class AppComponent implements OnInit {
       }
     });
 
+    if (!sanity) {
+      this.setAvailable(false);
+    }
+
     if (this.userSequence.length === this.sequence.length) {
+      this.setAvailable(false);
       this.manageLevel(sanity);
     }
   }
@@ -117,10 +127,15 @@ export class AppComponent implements OnInit {
     if (result) {
       this.level++;
       this.score++;
+      this.highScore = this.score > this.highScore ? this.score : this.highScore;
       this.start();
     } else {
       this.level = 0;
       this.score = 0;
     }
+  }
+
+  setAvailable(value: boolean) {
+    this.tiles.forEach(tile => tile.available = value)
   }
 }

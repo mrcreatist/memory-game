@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Tile } from '../model';
+import { Tile } from '../../model';
 
 @Component({
   selector: 'app-tile',
@@ -13,5 +13,4 @@ export class TileComponent {
   addSequence() {
     this.onClick.emit();
   }
-
 }
